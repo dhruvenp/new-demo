@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Recommendation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: blue;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: blue;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkblue;
+        }
+
+        #recommendations {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Food Recommendation</h1>
+
+    <!-- User Input Form -->
+    <form id="userInputForm">
+        <label for="weight">Weight:</label>
+        <input type="number" id="weight" name="weight" required>
+        <br>
+        <label for="height">Height:</label>
+        <input type="number" id="height" name="height" required>
+        <br>
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required>
+        <br>
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+        <br>
+        <button type="button" onclick="calculateRecommendations()">Get Food Recommendations</button>
+    </form>
+
+    <!-- Food Recommendations -->
+    <div id="recommendations"></div>
+
+    <!-- JavaScript -->
+    <script>
+        async function calculateRecommendations() {
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('height').value;
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+
+            const response = await fetch('http://127.0.0.1:8001/food-recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    weight: parseFloat(weight),
+                    height: parseFloat(height),
+                    age: parseInt(age),
+                    gender: gender
+                })
+            });
+
+            const data = await response.json();
+            const recommendations = data.food_recommendations;
+            const recommendationsElement = document.getElementById('recommendations');
+
+            // Clear previous recommendations
+            recommendationsElement.innerHTML = '';
+
+            // Display new recommendations
+            if (recommendations.length === 0) {
+                recommendationsElement.innerText = 'No recommendations available.';
+            } else {
+                const ul = document.createElement('ul');
+                recommendations.forEach(food => {
+                    const li = document.createElement('li');
+                    li.textContent = food;
+                    ul.appendChild(li);
+                });
+                recommendationsElement.appendChild(ul);
+            }
+        }
+    </script>
+</body>
+</html>
